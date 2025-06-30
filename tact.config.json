@@ -1,0 +1,9 @@
+{
+  "projects": [
+    {
+      "name": "TokenTradeMarket",
+      "path": "./contracts/TokenTradeMarket.tact",
+      "output": "./build"
+    }
+  ]
+}

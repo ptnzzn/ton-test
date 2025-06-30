@@ -1,0 +1,28 @@
+{
+  "name": "ton-test",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "generate-wallet": "node utils/GenerateTonTestetWallet/index.js",
+    "create-env": "node utils/GenerateEnvFile/index.js",
+    "setup": "npm run create-env && npm run generate-wallet",
+    "compile": "npx tact --config tact.config.json",
+    "deploy:testnet": "npm run compile && npx blueprint run deploy --testnet",
+    "deploy:mainnet": "npm run compile && npx blueprint run deploy --mainnet",
+    "check:testnet": "npx blueprint run check --testnet",
+    "check:mainnet": "npx blueprint run check --mainnet"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@orbs-network/ton-access": "^2.3.3",
+    "@tact-lang/compiler": "^1.6.13",
+    "@ton/blueprint": "^0.37.0",
+    "@ton/core": "^0.61.0",
+    "@ton/crypto": "^3.3.0",
+    "@ton/ton": "^15.3.0"
+  }
+}
