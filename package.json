@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node utils/TestContract/index.js",
+    "test:contract": "node utils/TestContract/index.js",
+    "interact": "node utils/InteractContract/index.js",
     "generate-wallet": "node utils/GenerateTonTestetWallet/index.js",
     "create-env": "node utils/GenerateEnvFile/index.js",
     "setup": "npm run create-env && npm run generate-wallet",

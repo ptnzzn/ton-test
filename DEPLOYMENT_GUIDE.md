@@ -289,104 +289,245 @@ npx blueprint run setup --mainnet
 
 ## 🔧 Testing and Interaction
 
-### 1. Create testing script
+### Quick Testing Commands
+
+```bash
+# Run automated contract tests
+npm test
+
+# Interactive contract testing
+npm run interact
+
+# Test specific contract functions
+npm run test:contract
+```
+
+### Automated Testing Features
+
+The project includes comprehensive testing utilities in the `utils/` directory:
+
+#### 1. Contract Functionality Tests (`utils/TestContract/`)
+- **Contract Info Retrieval**: Tests getting admin wallet, fee rate, and pause status
+- **Balance Verification**: Checks contract TON balance
+- **Stable Token Validation**: Verifies allowed stable token configurations
+- **Order Management**: Tests order ID generation and order retrieval
+- **Error Handling**: Validates proper error responses
+
+#### 2. Interactive Testing Tool (`utils/InteractContract/`)
+- **Admin Operations**: Pause/unpause contract, update fee rates
+- **Token Management**: Add/remove allowed stable tokens
+- **Order Operations**: Create, cancel, and buy orders
+- **Status Monitoring**: Real-time contract status checking
+- **Message Preparation**: Generates proper message formats for transactions
+
+### Testing Prerequisites
+
+1. **Deploy Contract First**:
+   ```bash
+   npm run deploy:testnet
+   ```
+
+2. **Update Environment**:
+   ```env
+   # Add to .env file
+   CONTRACT_ADDRESS=your_deployed_contract_address
+   ```
+
+3. **Verify Setup**:
+   ```bash
+   # Check if contract is accessible
+   npm test
+   ```
+
+### Testing Workflow
+
+#### Step 1: Automated Testing
+```bash
+# Run comprehensive tests
+npm test
+```
+
+Expected output:
+```
+🧪 Starting Contract Testing...
+📍 Testing contract at: EQC...
+
+📊 Test 1: Getting contract information...
+✅ Contract Info Retrieved:
+   Admin Wallet: EQC...
+   Fee Rate: 20 basis points (0.2%)
+   Is Paused: false
+
+💰 Test 2: Checking contract balance...
+✅ Contract Balance: 100000000 nanoTON (0.1 TON)
+
+🪙 Test 3: Checking stable token allowance...
+✅ Dummy stable token allowed: false
+
+🔢 Test 4: Getting next order ID...
+✅ Next Order ID: 1
+
+📋 Test 5: Checking sell order (ID: 1)...
+✅ No sell order found with ID 1 (expected for new contract)
+
+🎉 Contract testing completed!
+```
+
+#### Step 2: Interactive Testing
+```bash
+# Start interactive mode
+npm run interact
+```
+
+Interactive menu:
+```
+📋 Available Actions:
+1. Pause Contract (Admin only)
+2. Unpause Contract (Admin only)
+3. Update Fee Rate (Admin only)
+4. Add Allowed Stable Token (Admin only)
+5. Remove Allowed Stable Token (Admin only)
+6. Create Sell Order
+7. Cancel Sell Order
+8. Buy Order
+9. Check Contract Status
+0. Exit
+
+Select an action (0-9):
+```
+
+### Testing Scenarios
+
+#### Scenario 1: Admin Operations Testing
+```bash
+# Test admin functions
+npm run interact
+# Select option 1 (Pause Contract)
+# Select option 2 (Unpause Contract)
+# Select option 3 (Update Fee Rate)
+```
+
+#### Scenario 2: Trading Operations Testing
+```bash
+# Test trading functions
+npm run interact
+# Select option 6 (Create Sell Order)
+# Select option 8 (Buy Order)
+# Select option 7 (Cancel Sell Order)
+```
+
+#### Scenario 3: Status Monitoring
+```bash
+# Monitor contract status
+npm run interact
+# Select option 9 (Check Contract Status)
+```
+
+### Advanced Testing
+
+#### 1. Custom Testing with Contract Address
+```bash
+# Test specific contract address
+npm test -- EQC1234567890abcdef...
+
+# Interactive testing with specific address
+npm run interact -- EQC1234567890abcdef...
+```
+
+#### 2. Environment-based Testing
+```bash
+# Test with different environments
+CONTRACT_ADDRESS=EQC... npm test
+CONTRACT_ADDRESS=EQC... npm run interact
+```
+
+#### 3. Custom Testing Script
 ```typescript
-// scripts/check.ts
+// utils/custom-test.ts
 import { Address } from '@ton/core';
 import { TokenTradeMarket } from '../build/TokenTradeMarket/tact_TokenTradeMarket';
 import { NetworkProvider } from '@ton/blueprint';
 
-export async function run(provider: NetworkProvider, args: string[]) {
-    const contractAddress = args.length > 0 ? args[0] : process.env.CONTRACT_ADDRESS;
-    
-    if (!contractAddress) {
-        throw new Error('Contract address required');
-    }
-    
+export async function customTest(provider: NetworkProvider, contractAddress: string) {
     const contract = provider.open(TokenTradeMarket.fromAddress(Address.parse(contractAddress)));
     
-    try {
-        const info = await contract.getGetContractInfo();
-        console.log('📊 Contract Status:');
-        console.log(`   Address: ${contractAddress}`);
-        console.log(`   Admin: ${info.adminWallet}`);
-        console.log(`   Fee Rate: ${info.feeRate} (${Number(info.feeRate)/100}%)`);
-        console.log(`   Is Paused: ${info.isPaused}`);
-        
-        // Check balance
-        const balance = await provider.getBalance(Address.parse(contractAddress));
-        console.log(`   Balance: ${balance} nanoTON (${Number(balance)/1e9} TON)`);
-        
-    } catch (error) {
-        console.error('❌ Error checking contract:', error);
-    }
+    // Your custom test logic here
+    console.log('🔧 Running custom tests...');
+    
+    // Example: Test specific functionality
+    const info = await contract.getGetContractInfo();
+    console.log('Contract Info:', info);
 }
 ```
 
-### 2. Interaction script
-```typescript
-// scripts/interact.ts
-import { toNano, Address } from '@ton/core';
-import { TokenTradeMarket } from '../build/TokenTradeMarket/tact_TokenTradeMarket';
-import { NetworkProvider } from '@ton/blueprint';
+### Testing Best Practices
 
-export async function run(provider: NetworkProvider, args: string[]) {
-    const contractAddress = args[0];
-    const action = args[1];
-    
-    const contract = provider.open(TokenTradeMarket.fromAddress(Address.parse(contractAddress)));
-    
-    switch (action) {
-        case 'pause':
-            await contract.send(
-                provider.sender(),
-                { value: toNano('0.05') },
-                { $$type: 'PauseContract' }
-            );
-            console.log('✅ Contract paused');
-            break;
-            
-        case 'unpause':
-            await contract.send(
-                provider.sender(),
-                { value: toNano('0.05') },
-                { $$type: 'UnpauseContract' }
-            );
-            console.log('✅ Contract unpaused');
-            break;
-            
-        case 'update-fee':
-            const newRate = BigInt(args[2] || '100');
-            await contract.send(
-                provider.sender(),
-                { value: toNano('0.05') },
-                {
-                    $$type: 'UpdateFeeRate',
-                    rate: newRate
-                }
-            );
-            console.log(`✅ Fee rate updated to ${newRate}`);
-            break;
-            
-        case 'add-stable':
-            const tokenAddress = Address.parse(args[2]);
-            await contract.send(
-                provider.sender(),
-                { value: toNano('0.05') },
-                {
-                    $$type: 'UpdateAllowedStable',
-                    token: tokenAddress,
-                    allowed: true
-                }
-            );
-            console.log(`✅ Added stable token: ${tokenAddress}`);
-            break;
-            
-        default:
-            console.log('Available actions: pause, unpause, update-fee, add-stable');
-    }
-}
+#### 1. Pre-Testing Checklist
+- ✅ Contract deployed successfully
+- ✅ `.env` file contains correct `CONTRACT_ADDRESS`
+- ✅ Wallet has sufficient TON for gas fees
+- ✅ Network connection is stable
+
+#### 2. Testing Order
+1. **Basic Functionality**: Run `npm test` first
+2. **Admin Operations**: Test pause/unpause, fee updates
+3. **Trading Operations**: Test order creation, buying, cancellation
+4. **Edge Cases**: Test with invalid inputs, insufficient funds
+
+#### 3. Gas Fee Considerations
+- Each test transaction requires gas fees (~0.01-0.05 TON)
+- Ensure wallet has sufficient balance before testing
+- Monitor gas usage during interactive testing
+
+### Troubleshooting
+
+#### Common Issues
+
+**1. "Contract address required" Error**
+```bash
+# Solution: Set CONTRACT_ADDRESS in .env
+echo "CONTRACT_ADDRESS=your_contract_address" >> .env
 ```
+
+**2. "Insufficient funds" Error**
+```bash
+# Solution: Add TON to your wallet
+# Check balance first
+npm run interact
+# Select option 9 to check contract status
+```
+
+**3. "Contract not found" Error**
+```bash
+# Solution: Verify contract address
+# Check if contract is deployed correctly
+npm run check:testnet
+```
+
+**4. Network Connection Issues**
+```bash
+# Solution: Check network connectivity
+# Try different RPC endpoint if needed
+```
+
+#### Debug Mode
+```bash
+# Enable debug logging
+DEBUG=true npm test
+DEBUG=true npm run interact
+```
+
+### Testing Checklist
+
+- [ ] Contract deployed successfully
+- [ ] Environment variables configured
+- [ ] Automated tests pass
+- [ ] Admin functions work correctly
+- [ ] Trading operations function properly
+- [ ] Error handling works as expected
+- [ ] Gas fees are reasonable
+- [ ] Contract state updates correctly
+
 
 ### 3. Run scripts
 ```bash

@@ -95,6 +95,9 @@ npm run deploy:mainnet
 | `npm run deploy:mainnet` | Compile + deploy to mainnet |
 | `npm run check:testnet` | Check contract on testnet |
 | `npm run check:mainnet` | Check contract on mainnet |
+| `npm test` | Run automated contract tests |
+| `npm run test:contract` | Run contract functionality tests |
+| `npm run interact` | Interactive contract testing tool |
 
 ## 🔧 Usage Examples
 
@@ -175,14 +178,40 @@ await contract.send(seller, { value: toNano('0.05') }, {
 
 ## 🧪 Testing
 
+### Automated Contract Testing
 ```bash
-# Run tests (when implemented)
+# Run comprehensive contract tests
 npm test
+# or
+npm run test:contract
 
-# Test on testnet
-npm run deploy:testnet
-# Interact with contract using scripts
+# Interactive contract testing
+npm run interact
 ```
+
+### Test Features
+- **Contract Info Retrieval**: Test getting admin, fee rate, pause status
+- **Balance Checking**: Verify contract TON balance
+- **Stable Token Validation**: Check allowed stable tokens
+- **Order Management**: Test order creation, cancellation, and buying
+- **Interactive Mode**: Manual contract interaction with guided prompts
+
+### Prerequisites for Testing
+1. Deploy contract to testnet first:
+   ```bash
+   npm run deploy:testnet
+   ```
+
+2. Update `.env` with deployed contract address:
+   ```env
+   CONTRACT_ADDRESS=your_deployed_contract_address
+   ```
+
+3. Run tests:
+   ```bash
+   npm test  # Automated tests
+   npm run interact  # Interactive testing
+   ```
 
 ## 📖 Documentation
 
