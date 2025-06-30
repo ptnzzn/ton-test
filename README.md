@@ -33,6 +33,115 @@ A secure and efficient smart contract for peer-to-peer token trading on The Open
 | `0x05` | BuyOrder | Purchase tokens from order |
 | `0x06` | PauseContract | Emergency pause |
 | `0x07` | UnpauseContract | Resume operations |
+| `0x08` | SetJettonWalletCode | Set Jetton wallet code for tokens |
+| `0x946a98b6` | Deploy | Contract deployment message |
+| `0xf8a7ea5` | JettonTransfer | Standard Jetton transfer |
+| `0x7362d09c` | JettonTransferNotification | Jetton transfer notification |
+
+## 📋 Contract Details
+
+### TokenTradeMarket Contract
+
+The main smart contract `TokenTradeMarket.tact` implements a comprehensive decentralized trading platform with the following key features:
+
+#### Contract State Variables
+
+```tact
+contract TokenTradeMarket {
+    // Admin configuration
+    adminWallet: Address;           // Contract administrator
+    backendSigner: Address;         // Backend service signer
+    feeReceiver: Address;           // Fee collection address
+    feeRate: Int;                   // Trading fee (basis points)
+    
+    // Contract status
+    isPaused: Bool;                 // Emergency pause state
+    
+    // Token management
+    allowedStableTokens: map<Address, Bool>;     // Allowed stable tokens
+    jettonWalletCodes: map<Address, Cell>;       // Jetton wallet codes
+    validJettonWallets: map<Address, Bool>;      // Valid wallet validation
+    
+    // Trading data
+    sellOrders: map<Int, SellOrder>;             // Active sell orders
+}
+```
+
+#### Core Data Structures
+
+**SellOrder Struct:**
+```tact
+struct SellOrder {
+    seller: Address;        // Order creator
+    token: Address;         // Token being sold
+    amount: Int;           // Token amount
+    price: Int;            // Price per token
+    minBuyPrice: Int;      // Minimum purchase amount
+    active: Bool;          // Order status
+}
+```
+
+**JettonWalletData Struct:**
+```tact
+struct JettonWalletData {
+    balance: Int as coins;
+    ownerAddress: Address;
+    jettonMasterAddress: Address;
+    jettonWalletCode: Cell;
+}
+```
+
+#### Gas Management Constants
+
+```tact
+const GAS_FOR_JETTON_TRANSFER: Int = ton("0.1");  // Gas for Jetton transfers
+const GAS_FOR_FORWARD: Int = ton("0.05");         // Gas for forwarding
+const MIN_TONS_FOR_STORAGE: Int = ton("0.01");    // Minimum storage fee
+```
+
+#### Key Functions
+
+**Administrative Functions:**
+- `receive(msg: PauseContract)` - Emergency pause
+- `receive(msg: UnpauseContract)` - Resume operations
+- `receive(msg: UpdateFeeRate)` - Update trading fees
+- `receive(msg: UpdateAllowedStable)` - Manage stable tokens
+- `receive(msg: SetJettonWalletCode)` - Set Jetton wallet codes
+
+**Trading Functions:**
+- `receive(msg: CreateOrder)` - Create new sell orders
+- `receive(msg: CancelOrder)` - Cancel existing orders
+- `receive(msg: BuyOrder)` - Purchase from orders
+- `receive(msg: JettonTransferNotification)` - Handle incoming transfers
+
+**Utility Functions:**
+- `calculateJettonWalletAddress()` - Calculate Jetton wallet addresses
+- `bounced(src: bounced<JettonTransfer>)` - Handle failed transfers
+
+#### Security Features
+
+1. **Access Control**: Admin-only functions with sender validation
+2. **Jetton Wallet Validation**: Comprehensive wallet address verification
+3. **Gas Management**: Optimized gas usage with separate gas modes
+4. **Reentrancy Protection**: Safe external call patterns
+5. **Input Validation**: Comprehensive parameter checking
+6. **Emergency Controls**: Pause/unpause functionality
+
+#### Trading Flow
+
+1. **Order Creation**: Sellers create orders with token, amount, and price
+2. **Order Validation**: Contract validates token support and parameters
+3. **Purchase Execution**: Buyers purchase with automatic fee calculation
+4. **Token Transfer**: Secure Jetton transfers with proper gas management
+5. **Fee Distribution**: Automatic fee collection and seller payment
+6. **Order Updates**: Atomic order state updates to prevent race conditions
+
+#### Error Handling
+
+- **Bounced Messages**: Proper handling of failed Jetton transfers
+- **Validation Errors**: Comprehensive input validation with clear error messages
+- **Security Checks**: Multiple layers of security validation
+- **Gas Failures**: Graceful handling of insufficient gas scenarios
 
 ## 🚀 Quick Start
 
@@ -153,10 +262,14 @@ await contract.send(seller, { value: toNano('0.05') }, {
 
 ### Getter Functions
 
-- `getContractInfo()`: Get admin, fee rate, pause status
-- `getSellOrder(id)`: Get specific order details
-- `getIsAllowedStable(address)`: Check if token is allowed
-- `getNextOrderId()`: Get next available order ID
+- `getAdminWallet()`: Get contract administrator address
+- `getBackendSigner()`: Get backend signer address
+- `getFeeReceiver()`: Get fee receiver address
+- `getFeeRate()`: Get trading fee rate in basis points
+- `getIsPaused()`: Get contract pause status
+- `getOrderInfo(id)`: Get specific order details
+- `isJettonSupported(address)`: Check if jetton is supported
+- `getContractJettonWallet(address)`: Get contract's jetton wallet address
 
 ### State Variables
 

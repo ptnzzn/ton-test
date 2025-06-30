@@ -31,11 +31,13 @@ const testContract = async () => {
     // Test 1: Get contract info
     console.log('\n📊 Test 1: Getting contract information...');
     try {
-      const contractInfo = await contract.getGetContractInfo();
+      const adminWallet = await contract.getGetAdminWallet();
+      const feeRate = await contract.getGetFeeRate();
+      const isPaused = await contract.getGetIsPaused();
       console.log('✅ Contract Info Retrieved:');
-      console.log(`   Admin Wallet: ${contractInfo.adminWallet}`);
-      console.log(`   Fee Rate: ${contractInfo.feeRate} basis points (${Number(contractInfo.feeRate)/100}%)`);
-      console.log(`   Is Paused: ${contractInfo.isPaused}`);
+      console.log(`   Admin Wallet: ${adminWallet}`);
+      console.log(`   Fee Rate: ${feeRate} basis points (${Number(feeRate)/100}%)`);
+      console.log(`   Is Paused: ${isPaused}`);
     } catch (error) {
       console.error('❌ Failed to get contract info:', error.message);
     }

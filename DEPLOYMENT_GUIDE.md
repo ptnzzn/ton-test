@@ -207,11 +207,13 @@ export async function run(provider: NetworkProvider) {
     console.log(`🔗 Mainnet Explorer: https://tonviewer.com/${tokenTradeMarket.address}`);
     
     // Verify deployment
-    const contractData = await tokenTradeMarket.getGetContractInfo();
+    const adminWallet = await tokenTradeMarket.getGetAdminWallet();
+    const feeRate = await tokenTradeMarket.getGetFeeRate();
+    const isPaused = await tokenTradeMarket.getGetIsPaused();
     console.log('📊 Contract Info:');
-    console.log(`   Admin: ${contractData.adminWallet}`);
-    console.log(`   Fee Rate: ${contractData.feeRate}`);
-    console.log(`   Is Paused: ${contractData.isPaused}`);
+    console.log(`   Admin: ${adminWallet}`);
+    console.log(`   Fee Rate: ${feeRate}`);
+    console.log(`   Is Paused: ${isPaused}`);
 }
 ```
 
@@ -455,8 +457,10 @@ export async function customTest(provider: NetworkProvider, contractAddress: str
     console.log('🔧 Running custom tests...');
     
     // Example: Test specific functionality
-    const info = await contract.getGetContractInfo();
-    console.log('Contract Info:', info);
+    const adminWallet = await contract.getGetAdminWallet();
+    const feeRate = await contract.getGetFeeRate();
+    const isPaused = await contract.getGetIsPaused();
+    console.log('Contract Info:', { adminWallet, feeRate, isPaused });
 }
 ```
 

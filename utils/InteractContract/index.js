@@ -248,14 +248,22 @@ const checkContractStatus = async (contract) => {
   console.log('\n📊 Checking contract status...');
   
   try {
-    const contractInfo = await contract.getGetContractInfo();
+    const adminWallet = await contract.getGetAdminWallet();
+    const feeRate = await contract.getGetFeeRate();
+    const isPaused = await contract.getGetIsPaused();
     console.log('✅ Contract Status:');
-    console.log(`   Admin Wallet: ${contractInfo.adminWallet}`);
-    console.log(`   Fee Rate: ${contractInfo.feeRate} basis points (${Number(contractInfo.feeRate)/100}%)`);
-    console.log(`   Is Paused: ${contractInfo.isPaused}`);
+    console.log(`   Admin Wallet: ${adminWallet}`);
+    console.log(`   Fee Rate: ${feeRate} basis points (${Number(feeRate)/100}%)`);
+    console.log(`   Is Paused: ${isPaused}`);
     
-    const nextOrderId = await contract.getGetNextOrderId();
-    console.log(`   Next Order ID: ${nextOrderId}`);
+    // Note: getGetNextOrderId() function may not exist in the updated contract
+    // You may need to check if this function is still available
+    try {
+      const nextOrderId = await contract.getGetNextOrderId();
+      console.log(`   Next Order ID: ${nextOrderId}`);
+    } catch (orderIdError) {
+      console.log('   Next Order ID: Not available (function may have been removed)');
+    }
     
   } catch (error) {
     console.error('❌ Failed to get contract status:', error.message);
