@@ -154,6 +154,22 @@ const MIN_TONS_FOR_STORAGE: Int = ton("0.01");    // Minimum storage fee
 
 ### Installation
 
+#### 1. Install Tact Language Extension
+
+For the best development experience, install the Tact Language extension for VS Code:
+
+- Open VS Code
+- Go to Extensions (Ctrl+Shift+X)
+- Search for "Tact Language"
+- Install the official Tact Language extension
+
+Alternatively, install via command line:
+```bash
+code --install-extension tact-lang.tact-vscode
+```
+
+#### 2. Setup Project
+
 ```bash
 # Clone the repository
 git clone <your-repo-url>
