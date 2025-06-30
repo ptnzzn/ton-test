@@ -225,7 +225,7 @@ contract TokenTradeMarket {
         require(isValidWallet != null && isValidWallet!!, "Invalid Jetton wallet");
         
         // Send Jetton transfer message with proper gas management
-        send(SendParameters{
+        message(MessageParameters{
             to: contractJettonWallet,
             value: self.GAS_FOR_JETTON_TRANSFER,
             mode: SendPayGasSeparately,
@@ -295,7 +295,7 @@ contract TokenTradeMarket {
         
         // Transfer payment to seller (minus fee) with concurrency safety
         if (paySeller > 0) {
-            send(SendParameters{
+            message(MessageParameters{
                 to: contractStableWallet,
                 value: self.GAS_FOR_JETTON_TRANSFER,
                 mode: SendPayGasSeparately,
@@ -313,7 +313,7 @@ contract TokenTradeMarket {
         
         // Transfer fee to fee receiver
         if (fee > 0) {
-            send(SendParameters{
+            message(MessageParameters{
                 to: contractStableWallet,
                 value: self.GAS_FOR_JETTON_TRANSFER,
                 mode: SendPayGasSeparately,
